@@ -1,0 +1,44 @@
+#!/usr/bin/env ruby
+require 'configliere'
+require File.dirname(File.expand_path(__FILE__)) + '/../src/rappa'
+
+Settings.use :commandline
+
+Settings.define :input_directory, :flag => 'i', :description => "Input directory for package e.g. rappa package -i /path/to/project"
+Settings.define :output_directory, :flag => 'o', :description => "Output directory for package e.g. rappa package -o /path/to/output/location"
+Settings.define :input_archive, :flag => 'a', :description => "Input .rap archive for expand e.g. rappa expand -a /path/to/.rap"
+Settings.define :output_archive, :flag => 'd', :description => "Output directory for expand e.g. rappa expand -d /path/to/output/location"
+
+Settings.resolve!
+
+p Settings
+p Settings.rest
+
+if Settings.rest.include?('package')
+  if Settings[:input_directory].nil?
+    puts "You must supply an input directory for package with -i"
+  elsif Settings[:output_directory].nil?
+    puts "You must supply an output directory for package with -o"
+  else
+    begin
+      Rappa.new(Settings).package
+    rescue Exception => e
+      puts "[ERROR] Could not continue because: #{e}"
+    end
+  end
+elsif Settings.rest.include?('expand')
+  if Settings[:input_archive].nil?
+    puts "You must supply an input .rap archive for expand with -a"
+  elsif Settings[:output_archive].nil?
+    puts "You must supply an output archive directory for expand with -d"
+  else
+    begin
+      Rappa.new(Settings).expand
+    rescue Exception => e
+      puts "[ERROR] Could not continue because: #{e}"
+    end
+  end
+elsif Settings.rest.include?('generate')
+  Rappa.new.generate
+end
+
