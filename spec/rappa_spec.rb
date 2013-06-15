@@ -18,18 +18,8 @@ describe "Rappa" do
     assert_expanded_archive
   end
 
-
-
-  #it 'should exclude files and directories when using exclude option in config file' do
-  #
-  #end
-  #
-  #it 'should include files and directories when using include option in config file' do
-  #
-  #end
-
   def assert_expanded_archive
-    ["#{@generated}/output/test_rap/test_1.txt","#{@generated}/output/test_rap/nested","#{@generated}/output/test_rap/nested/test_2.txt"].each do |path|
+    ["#{@generated}/output/test_rap/test_1.txt", "#{@generated}/output/test_rap/nested", "#{@generated}/output/test_rap/nested/test_2.txt"].each do |path|
       assert_file_exists(path)
     end
   end
@@ -42,8 +32,14 @@ describe "Rappa" do
     project_path = "#{@generated}/test_rap"
     Dir.mkdir(project_path)
     Dir.mkdir(project_path + '/nested')
-    File.open("#{@generated}/test_rap/test_1.txt","w"){|f| f.puts "This is test_1.txt"}
-    File.open("#{@generated}/test_rap/nested/test_2.txt","w"){|f| f.puts "This is test_2.txt"}
+    File.open("#{@generated}/test_rap/test_1.txt", "w") { |f| f.puts "This is test_1.txt" }
+    File.open("#{@generated}/test_rap/nested/test_2.txt", "w") { |f| f.puts "This is test_2.txt" }
+    make_rap_yml
+  end
+
+  def make_rap_yml
+    sample = {:server_type => 'thin', :start_script => './start.sh', :stop_script => './stop.sh'}
+    File.open("#{@generated}/test_rap/rap.yml", 'w') { |f| f.puts sample.to_yaml }
   end
 
 end
