@@ -23,7 +23,7 @@ describe "Rappa" do
   end
 
   it 'should raise an exception if expand is not passed a valid input file' do
-    expect { Rappa.new(:input_archive => 'missing', :output_archive => 'anything').expand }.to raise_error(RappaError,'input directory: missing does not exist')
+    expect { Rappa.new(:input_archive => 'missing', :output_archive => 'anything').expand }.to raise_error(RappaError,'input archive: missing does not exist')
   end
 
   it 'should raise exception on package if :input_directory or :output_directory properties are not supplied' do
@@ -34,6 +34,11 @@ describe "Rappa" do
   it 'should raise exception on expand if :input_archive or :output_archive properties are not supplied' do
     expect { Rappa.new.expand }.to raise_error(RappaError, 'property input_archive is mandatory but was not supplied')
     expect { Rappa.new(:input_archive => 'anything').expand }.to raise_error(RappaError, 'property output_archive is mandatory but was not supplied')
+  end
+
+  it 'should raise an exception on expand if :input_archive is not a valid .rap file' do
+    make_fake_project
+    expect { Rappa.new(:input_archive => 'spec/generated', :output_archive => @generated + '/output').expand }.to raise_error(RappaError, 'input archive: spec/generated is not a valid .rap archive')
   end
 
   it 'should raise an exception on package if archive with same name already exists' do

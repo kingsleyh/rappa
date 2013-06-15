@@ -11,7 +11,9 @@ class Rappa
 
   def initialize(config={})
     @config = config
-    @config[:file_name] = File.basename(@config[:input_directory]) unless @config[:input_directory].nil?
+    unless @config[:input_directory].nil?
+      @config[:file_name] = (@config[:input_directory] == '.') ? 'default' : File.basename(@config[:input_directory])
+    end
   end
 
   def package
@@ -34,7 +36,8 @@ class Rappa
   def expand
     check_property(@config[:input_archive], :input_archive)
     check_property(@config[:output_archive], :output_archive)
-    raise RappaError, "input directory: #{@config[:input_archive]} does not exist" unless File.exists?(@config[:input_archive])
+    raise RappaError, "input archive: #{@config[:input_archive]} does not exist" unless File.exists?(@config[:input_archive])
+    validate_is_rap_archive
     output_directory = @config[:output_archive]
     FileUtils.mkdir_p output_directory unless File.exists?(output_directory)
     Zip::ZipFile.open(@config[:input_archive]) { |zip_file|
@@ -75,6 +78,12 @@ class Rappa
     else
       raise RappaError, 'rap.yml file is required - please run rappa generate to create a sample rap.yml'
     end
+  end
+
+  def validate_is_rap_archive
+    base_name = File.basename(@config[:input_archive])
+    extension = File.extname(base_name)
+    raise RappaError, "input archive: #{@config[:input_archive]} is not a valid .rap archive" unless extension == '.rap'
   end
 
   def calculate_destination
