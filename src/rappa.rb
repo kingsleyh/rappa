@@ -2,6 +2,9 @@ require 'zip/zip'
 require 'fileutils'
 require 'yaml'
 
+class RappaError < Exception;
+end
+
 class Rappa
 
   SUPPORTED_SERVERS = %w(thin unicorn webrick)
@@ -12,12 +15,14 @@ class Rappa
   end
 
   def package
+    check_property(@config[:input_directory], :input_directory)
+    check_property(@config[:output_directory], :output_directory)
     input_directory = append_trailing_slash(@config[:input_directory])
-    raise Exception, "input directory: #{input_directory} does not exist" unless File.exists?(input_directory)
+    raise RappaError, "input directory: #{input_directory} does not exist" unless File.exists?(input_directory)
     output_directory = @config[:output_directory]
     FileUtils.mkdir_p output_directory unless File.exists?(output_directory)
-    #raise Exception, "output directory: #{output_directory} does not exist" unless File.exists?(output_directory)
     name = "#{@config[:output_directory]}/#{@config[:file_name]}.rap"
+    raise RappaError, "a rap archive already exists with the name: #{@config[:file_name]}.rap - please remove it and try again" if File.exists?(name)
     validate(input_directory)
     Zip::ZipFile.open(name, Zip::ZipFile::CREATE) do |zip_file|
       Dir[File.join(input_directory, '**', '**')].each do |file|
@@ -27,8 +32,9 @@ class Rappa
   end
 
   def expand
-    raise Exception, "input directory: #{@config[:input_archive]} does not exist" unless File.exists?(@config[:input_archive])
-    #raise Exception, "output directory: #{@config[:output_archive]} does not exist" unless File.exists?(@config[:output_archive])
+    check_property(@config[:input_archive], :input_archive)
+    check_property(@config[:output_archive], :output_archive)
+    raise RappaError, "input directory: #{@config[:input_archive]} does not exist" unless File.exists?(@config[:input_archive])
     output_directory = @config[:output_archive]
     FileUtils.mkdir_p output_directory unless File.exists?(output_directory)
     Zip::ZipFile.open(@config[:input_archive]) { |zip_file|
@@ -54,16 +60,20 @@ class Rappa
 
   private
 
+  def check_property(property, property_type)
+    raise RappaError, "property #{property_type} is mandatory but was not supplied" if property.nil? or property.empty?
+  end
+
   def validate(directory)
     rap_file = directory + '/rap.yml'
     if File.exists?(rap_file)
       rap = YAML.load_file(rap_file)
-      raise Exception, ":server_type is required and must be on of: #{SUPPORTED_SERVERS}" if rap[:server_type].nil? or rap[:server_type].empty?
-      raise Exception, ":server_type supplied: #{rap[:server_type]} is not in the supported server list: #{SUPPORTED_SERVERS}" unless SUPPORTED_SERVERS.include?(rap[:server_type])
-      raise Exception, ':start_script is required' if rap[:start_script].nil? or rap[:start_script].empty?
-      raise Exception, ':stop_script is required' if rap[:stop_script].nil? or rap[:stop_script].empty?
+      raise RappaError, "rap.yml :server_type is required and must be one of: #{SUPPORTED_SERVERS}" if rap[:server_type].nil? or rap[:server_type].empty?
+      raise RappaError, "rap.yml :server_type supplied: #{rap[:server_type]} is not in the supported server list: #{SUPPORTED_SERVERS}" unless SUPPORTED_SERVERS.include?(rap[:server_type])
+      raise RappaError, 'rap.yml :start_script is required' if rap[:start_script].nil? or rap[:start_script].empty?
+      raise RappaError, 'rap.yml :stop_script is required' if rap[:stop_script].nil? or rap[:stop_script].empty?
     else
-      raise Exception, 'rap.yml file is required - please run rappa generate to create a sample rap.yml'
+      raise RappaError, 'rap.yml file is required - please run rappa generate to create a sample rap.yml'
     end
   end
 
