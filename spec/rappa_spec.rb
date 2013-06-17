@@ -19,11 +19,11 @@ describe "Rappa" do
   end
 
   it 'should raise an exception if package is not passed a valid input directory' do
-    expect { Rappa.new(:input_directory => 'missing',:output_directory => 'anything').package }.to raise_error(RappaError,'input directory: missing/ does not exist')
+    expect { Rappa.new(:input_directory => 'missing', :output_directory => 'anything').package }.to raise_error(RappaError, 'input directory: missing/ does not exist')
   end
 
   it 'should raise an exception if expand is not passed a valid input file' do
-    expect { Rappa.new(:input_archive => 'missing', :output_archive => 'anything').expand }.to raise_error(RappaError,'input archive: missing does not exist')
+    expect { Rappa.new(:input_archive => 'missing', :output_archive => 'anything').expand }.to raise_error(RappaError, 'input archive: missing does not exist')
   end
 
   it 'should raise exception on package if :input_directory or :output_directory properties are not supplied' do
@@ -53,27 +53,48 @@ describe "Rappa" do
   end
 
   it 'should raise an exception on package if rap.yml is missing :server_type' do
-    make_fake_project(true, {:start_script => './start.sh', :stop_script => './stop.sh'})
+    make_fake_project(true, {:start_script => 'start.sh', :stop_script => 'stop.sh'})
     expect { Rappa.new(:input_directory => "#{@generated}/test_rap/", :output_directory => @generated).package }.to raise_error(RappaError, 'rap.yml :server_type is required and must be one of: ["thin", "unicorn", "webrick"]')
   end
 
   it 'should raise an exception on package if rap.yml contains an unsupported :server_type' do
-    make_fake_project(true, {:server_type => 'unsupported', :start_script => './start.sh', :stop_script => './stop.sh'})
+    make_fake_project(true, {:server_type => 'unsupported', :start_script => 'start.sh', :stop_script => 'stop.sh'})
     expect { Rappa.new(:input_directory => "#{@generated}/test_rap/", :output_directory => @generated).package }.to raise_error(RappaError, 'rap.yml :server_type supplied: unsupported is not in the supported server list: ["thin", "unicorn", "webrick"]')
   end
 
   it 'should raise an exception on package if rap.yml is missing :start_script' do
-    make_fake_project(true, {:server_type => 'thin', :stop_script => './stop.sh'})
+    make_fake_project(true, {:server_type => 'thin', :stop_script => 'stop.sh'})
     expect { Rappa.new(:input_directory => "#{@generated}/test_rap/", :output_directory => @generated).package }.to raise_error(RappaError, 'rap.yml :start_script is required')
   end
 
   it 'should raise an exception on package if rap.yml is missing :stop_script' do
-    make_fake_project(true, {:server_type => 'thin', :start_script => './start.sh'})
-        expect { Rappa.new(:input_directory => "#{@generated}/test_rap/", :output_directory => @generated).package }.to raise_error(RappaError, 'rap.yml :stop_script is required')
+    make_fake_project(true, {:server_type => 'thin', :start_script => 'start.sh'})
+    expect { Rappa.new(:input_directory => "#{@generated}/test_rap/", :output_directory => @generated).package }.to raise_error(RappaError, 'rap.yml :stop_script is required')
+  end
+
+  it 'should raise an exception on package if rap.yml is missing :pids' do
+    make_fake_project(true, {:server_type => 'thin', :start_script => 'start.sh', :stop_script => 'stop.sh'})
+    expect { Rappa.new(:input_directory => "#{@generated}/test_rap/", :output_directory => @generated).package }.to raise_error(RappaError, 'rap.yml :pids is required')
+  end
+
+  it 'should raise an exception on package if rap.yml is missing :name' do
+    make_fake_project(true, {:server_type => 'thin', :start_script => 'start.sh', :stop_script => 'stop.sh', :pids => 'tmp/pids'})
+    expect { Rappa.new(:input_directory => "#{@generated}/test_rap/", :output_directory => @generated).package }.to raise_error(RappaError, 'rap.yml :name is required')
+  end
+
+  it 'should raise an exception on package if rap.yml is missing :description' do
+    make_fake_project(true, {:server_type => 'thin', :start_script => 'start.sh', :stop_script => 'stop.sh', :pids => 'tmp/pids', :name => 'Cool'})
+    expect { Rappa.new(:input_directory => "#{@generated}/test_rap/", :output_directory => @generated).package }.to raise_error(RappaError, 'rap.yml :description is required')
+  end
+
+  it 'should create a package called default.rap if package is called with .' do
+    FileUtils.chdir('spec')
+    Rappa.new(:input_directory => ".", :output_directory => @generated).package
+    assert_file_exists("#{@generated}/default.rap")
   end
 
   def assert_expanded_archive
-    ["#{@generated}/output/test_rap/test_1.txt", "#{@generated}/output/test_rap/nested", "#{@generated}/output/test_rap/nested/test_2.txt"].each do |path|
+    %W(#{@generated}/output/test_rap/test_1.txt #{@generated}/output/test_rap/nested #{@generated}/output/test_rap/nested/test_2.txt).each do |path|
       assert_file_exists(path)
     end
   end
@@ -82,12 +103,12 @@ describe "Rappa" do
     File.exists?(file).should == true
   end
 
-  def make_fake_project(rap=true, rap_config={:server_type => 'thin', :start_script => './start.sh', :stop_script => './stop.sh'})
+  def make_fake_project(rap=true, rap_config={:server_type => 'thin', :start_script => 'start.sh', :stop_script => 'stop.sh', :pids => 'tmp/pids', :name => 'Cool', :description => 'Cool App'})
     project_path = "#{@generated}/test_rap"
     Dir.mkdir(project_path)
     Dir.mkdir(project_path + '/nested')
-    File.open("#{@generated}/test_rap/test_1.txt", "w") { |f| f.puts "This is test_1.txt" }
-    File.open("#{@generated}/test_rap/nested/test_2.txt", "w") { |f| f.puts "This is test_2.txt" }
+    File.open("#{@generated}/test_rap/test_1.txt", "w") { |f| f.puts 'This is test_1.txt' }
+    File.open("#{@generated}/test_rap/nested/test_2.txt", "w") { |f| f.puts 'This is test_2.txt' }
     make_rap_yml(rap_config) if rap
   end
 

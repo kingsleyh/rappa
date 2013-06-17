@@ -50,7 +50,7 @@ class Rappa
   end
 
   def generate
-    sample = {:server_type => 'thin', :start_script => './start.sh', :stop_script => './stop.sh'}
+    sample = {:server_type => 'thin', :start_script => 'start.sh', :stop_script => 'stop.sh', :pids => 'tmp/pids', :name => 'App Name', :description => 'App Description'}
     File.open('sample.rap.yml', 'w') { |f| f.puts sample.to_yaml }
   end
 
@@ -75,6 +75,9 @@ class Rappa
       raise RappaError, "rap.yml :server_type supplied: #{rap[:server_type]} is not in the supported server list: #{SUPPORTED_SERVERS}" unless SUPPORTED_SERVERS.include?(rap[:server_type])
       raise RappaError, 'rap.yml :start_script is required' if rap[:start_script].nil? or rap[:start_script].empty?
       raise RappaError, 'rap.yml :stop_script is required' if rap[:stop_script].nil? or rap[:stop_script].empty?
+      raise RappaError, 'rap.yml :pids is required' if rap[:pids].nil? or rap[:pids].empty?
+      raise RappaError, 'rap.yml :name is required' if rap[:name].nil? or rap[:name].empty?
+      raise RappaError, 'rap.yml :description is required' if rap[:description].nil? or rap[:description].empty?
     else
       raise RappaError, 'rap.yml file is required - please run rappa generate to create a sample rap.yml'
     end
