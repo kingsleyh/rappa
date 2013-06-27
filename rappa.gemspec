@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   ]
   s.homepage = "https://github.com/masterthought/rappa"
   s.licenses = ["Apache 2.0"]
-  s.require_paths = ["lib"]
+  s.require_paths = ["src"]
   s.rubygems_version = "1.8.25"
   s.summary = "Ruby Application Package Personal Assistant"
 
