@@ -4,43 +4,58 @@ require File.dirname(File.expand_path(__FILE__)) + '/../src/rappa'
 
 Settings.use :commandline
 
-Settings.define :input_directory, :flag => 'i', :description => "Input directory for package e.g. rappa package -i /path/to/project"
-Settings.define :output_directory, :flag => 'o', :description => "Output directory for package e.g. rappa package -o /path/to/output/location"
-Settings.define :input_archive, :flag => 'a', :description => "Input .rap archive for expand e.g. rappa expand -a /path/to/.rap"
-Settings.define :output_archive, :flag => 'd', :description => "Output directory for expand e.g. rappa expand -d /path/to/output/location"
+Settings.define :input_directory, :flag => 'i', :description => 'Input directory for package e.g. rappa package -i /path/to/project'
+Settings.define :output_directory, :flag => 'o', :description => 'Output directory for package e.g. rappa package -o /path/to/output/location'
+Settings.define :input_archive, :flag => 'a', :description => 'Input .rap archive for expand e.g. rappa expand -a /path/to/.rap'
+Settings.define :output_archive, :flag => 'd', :description => 'Output directory for expand e.g. rappa expand -d /path/to/output/location'
+Settings.define :input_rap, :flag => 'r', :description => 'Input .rap for deploy e.g. rappa deploy -r /path/to/.rap -u http://host/api/deploy -k api_key'
+Settings.define :url, :flag => 'u', :description => 'Url for deploy e.g. rappa deploy -r /path/to/.rap -u http://host/api/deploy -k api_key'
+Settings.define :api_key, :flag => 'k', :description => 'Api key for deploy e.g. rappa deploy -r /path/to/.rap -u http://host/api/deploy -k api_key'
 
 Settings.resolve!
 
-#p Settings
-#p Settings.rest
-
 if Settings.rest.include?('package')
   if Settings[:input_directory].nil?
-    puts "[ERROR] You must supply an input directory for package with -i e.g. rappa package -i /path/to/project"
+    puts '[ERROR] You must supply an input directory for package with -i e.g. rappa package -i /path/to/project'
   elsif Settings[:output_directory].nil?
-    puts "[ERROR] You must supply an output directory for package with -o e.g. rappa package -o /path/to/output/location"
+    puts '[ERROR] You must supply an output directory for package with -o e.g. rappa package -o /path/to/output/location'
   else
     begin
       Rappa.new(Settings).package
-      puts "[SUCCESS] packaged rap successfully"
+      puts '[SUCCESS] packaged rap successfully'
     rescue RappaError => e
-      puts "[ERROR] Could not continue because: #{e}"
+      puts "[ERROR] Could not continue package because: #{e}"
     end
   end
 elsif Settings.rest.include?('expand')
   if Settings[:input_archive].nil?
-    puts "[ERROR] You must supply an input .rap archive for expand with -a e.g. rappa expand -a /path/to/.rap"
+    puts '[ERROR] You must supply an input .rap archive for expand with -a e.g. rappa expand -a /path/to/.rap'
   elsif Settings[:output_archive].nil?
-    puts "[ERROR] You must supply an output archive directory for expand with -d e.g. rappa expand -d /path/to/output/location"
+    puts '[ERROR] You must supply an output archive directory for expand with -d e.g. rappa expand -d /path/to/output/location'
   else
     begin
       Rappa.new(Settings).expand
-       puts "[SUCCESS] expanded rap successfully"
+      puts '[SUCCESS] expanded rap successfully'
     rescue RappaError => e
-      puts "[ERROR] Could not continue because: #{e}"
+      puts "[ERROR] Could not continue expand because: #{e}"
     end
   end
 elsif Settings.rest.include?('generate')
   Rappa.new.generate
+elsif Settings.rest.include?('deploy')
+  if Settings[:input_rap].nil?
+    puts '[ERROR] You must supply an input .rap archive for deploy with -r e.g. rappa deploy -r /path/to/.rap -u http://host/api/deploy -k api_key'
+  elsif Settings[:api_key].nil?
+    puts '[ERROR] You must supply an api key for deploy with -k e.g. rappa deploy -r /path/to/.rap -u http://host/api/deploy -k api_key'
+  elsif Settings[:url].nil?
+    puts '[ERROR] You must supply a url for deploy with -u e.g. rappa deploy -r /path/to/.rap -u http://host/api/deploy -k api_key'
+  else
+    begin
+      Rappa.new(Settings).deploy
+      puts "[SUCCESS] deployed rap: #{Settings[:input_rap]} successfully to: #{Settings[:url]}"
+    rescue RappaError => e
+      puts "[ERROR] Could not continue deploy because: #{e}"
+    end
+  end
 end
 

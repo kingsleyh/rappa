@@ -87,6 +87,29 @@ describe "Rappa" do
     expect { Rappa.new(:input_directory => "#{@generated}/test_rap/", :output_directory => @generated).package }.to raise_error(RappaError, 'rap.yml :description is required')
   end
 
+  it 'should raise an exception on package if rap.yml is missing :version' do
+    make_fake_project(true, {:server_type => 'thin', :start_script => 'start.sh', :stop_script => 'stop.sh', :pids => 'tmp/pids', :name => 'Cool', :description => 'description'})
+    expect { Rappa.new(:input_directory => "#{@generated}/test_rap/", :output_directory => @generated).package }.to raise_error(RappaError, 'rap.yml :version is required')
+  end
+
+  it 'is should deploy to target thundercat server' do
+    make_fake_project
+    rest_client = mock('RestClient')
+    file = mock('File')
+    file_instance = mock('FileInstance')
+    Rappa.new(:input_directory => "#{@generated}/test_rap/", :output_directory => @generated).package
+    rest_client.should_receive(:put).with('http://localhost:8089/api/deploy?key=api_key', {:file => file_instance})
+    file.should_receive(:new).and_return(file_instance)
+    file_instance.should_receive(:empty?).and_return(false)
+    Rappa.new({:input_rap => file_instance, :url => 'http://localhost:8089/api/deploy', :api_key => 'api_key'}, rest_client, file).deploy
+  end
+
+  it 'should raise exception on deploy if :input_rap or :api_key or :url properties are not supplied' do
+    expect { Rappa.new.deploy }.to raise_error(RappaError, 'property input_rap is mandatory but was not supplied')
+    expect { Rappa.new(:input_rap => 'anything', :api_key => 'anything').deploy }.to raise_error(RappaError, 'property url is mandatory but was not supplied')
+    expect { Rappa.new(:input_rap => 'anything', :url => 'anything').deploy }.to raise_error(RappaError, 'property api_key is mandatory but was not supplied')
+  end
+
   it 'should create a package called default.rap if package is called with .' do
     FileUtils.chdir('spec')
     Rappa.new(:input_directory => ".", :output_directory => @generated).package
@@ -103,7 +126,7 @@ describe "Rappa" do
     File.exists?(file).should == true
   end
 
-  def make_fake_project(rap=true, rap_config={:server_type => 'thin', :start_script => 'start.sh', :stop_script => 'stop.sh', :pids => 'tmp/pids', :name => 'Cool', :description => 'Cool App'})
+  def make_fake_project(rap=true, rap_config={:server_type => 'thin', :start_script => 'start.sh', :stop_script => 'stop.sh', :pids => 'tmp/pids', :name => 'Cool', :description => 'Cool App', :version => '0.0.1'})
     project_path = "#{@generated}/test_rap"
     Dir.mkdir(project_path)
     Dir.mkdir(project_path + '/nested')
