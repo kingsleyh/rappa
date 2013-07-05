@@ -116,11 +116,11 @@ Once you have your rap.yml in the root of your project you must navigate one lev
 
 This packages your application. You need a rap.yml in the root of your project and must be executed from one level up from your application e.g.
 
-   rappa package -i path/to/your/app -o path/to/destination
+     rappa package -i path/to/your/app -o path/to/destination
 
 The -i is for input directory and the -o is for output directory e.g.
 
-   rappa package -i ./myapp -o .
+     rappa package -i ./myapp -o .
 
 Will produce a myapp.rap in the current directory. The name of the folder of your application is what will be used in the rap archive.
 
@@ -128,7 +128,7 @@ Will produce a myapp.rap in the current directory. The name of the folder of you
 
 This expands an existing rap archive e.g.
 
-   rappa -a myapp.rap -d .
+     rappa -a myapp.rap -d .
 
 This will expand the myapp.rap into the current directory. (it will be inside a directory called myapp)
 
@@ -136,7 +136,7 @@ This will expand the myapp.rap into the current directory. (it will be inside a 
 
 This deploys a rap archive to a thundercat server e.g.
 
-   rappa deploy -r myapp.rap -u http://thundercat/api/deploy -k your_api_key
+     rappa deploy -r myapp.rap -u http://thundercat/api/deploy -k your_api_key
 
 -r is to specify your rap archive and -u is the url of the deploy api where your thundercat instance is running. -k is your api_key which is configured in your
 thundercat server.
