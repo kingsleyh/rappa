@@ -16,14 +16,14 @@ gem install rappa
 
 The first thing you need is a rap.yml file which needs to live in the root of your project:
 
-   :name: My Awesome App
-   :version: 0.0.1
-   :description: This App rocks
-   :server_type: thin
-   :start_script: start.sh
-   :stop_script: stop.sh
-   :pids: tmp/pids
-   :bootstrap: bootstrap.sh
+     :name: My Awesome App
+     :version: 0.0.1
+     :description: This App rocks
+     :server_type: thin
+     :start_script: start.sh
+     :stop_script: stop.sh
+     :pids: tmp/pids
+     :bootstrap: bootstrap.sh
 
 All fields are mandatory apart from the bootstrap field. All the fields are pretty self explanatory but here is a detailed breakdown:
 
@@ -43,52 +43,51 @@ An example would be to have a thin project which uses Rake and has the following
 
 ### Rakefile
 
-   require 'rake'
+     require 'rake'
 
-   namespace :thin do
+     namespace :thin do
 
-     desc "Start The Application"
-     task :start do
-       puts "Starting The Application..."
-       system("thin start -e production -p 9991 -s 1 -d")
-     end
+       desc "Start The Application"
+       task :start do
+         puts "Starting The Application..."
+         system("thin start -e production -p 9991 -s 1 -d")
+       end
 
-     desc "Stop The Application"
-     task :stop do
-       puts "Stopping The Application..."
-       Dir.new(File.dirname(__FILE__) + '/tmp/pids').each do |file|
-         prefix = file.to_s
-         if prefix[0, 4] == 'thin'
-           str = "thin stop -P#{File.dirname(__FILE__)}/tmp/pids/#{file}"
-           puts "Stopping server on port #{file[/\d+/]}..."
-           system(str)
+       desc "Stop The Application"
+       task :stop do
+         puts "Stopping The Application..."
+         Dir.new(File.dirname(__FILE__) + '/tmp/pids').each do |file|
+           prefix = file.to_s
+           if prefix[0, 4] == 'thin'
+             str = "thin stop -P#{File.dirname(__FILE__)}/tmp/pids/#{file}"
+             puts "Stopping server on port #{file[/\d+/]}..."
+             system(str)
+           end
          end
        end
      end
-
-   end
 
 ### Start and Stop Scripts
 
 ./start.sh
 
-   rake thin:start
+     rake thin:start
 
 ./stop.sh
 
-   rake thin:stop
+     rake thin:stop
 
 ./config.ru
 
-   require File.dirname(__FILE__) + '/sinatra_app'
-   run Sinatra::Application
+     require File.dirname(__FILE__) + '/sinatra_app'
+     run Sinatra::Application
 
 ./bootstrap.sh
 
-   echo "Inside the bootstrap"
-   bundle install
-   mkdir -p /some/dir/some/where
-   echo "Done with bootstrap"
+     echo "Inside the bootstrap"
+     bundle install
+     mkdir -p /some/dir/some/where
+     echo "Done with bootstrap"
 
 (Recommended that you bundle package instead of putting a bundle install in the bootstrap.sh though)
 
