@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "rappa"
-  s.version = "0.0.1"
+  s.version = "0.0.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Kingsley Hendrickse"]
-  s.date = "2013-06-14"
+  s.date = "2013-07-05"
   s.description = "Easy and simple way to package up your rack based application into a .rap (Ruby Application Package) for deployment to a web container that supports .rap such as ThunderCat.\n"
   s.email = "kingsley@masterthought.net"
   s.executables = ["/rappa"]
@@ -33,17 +33,20 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<configliere>, [">= 0"])
       s.add_runtime_dependency(%q<rubyzip>, [">= 0"])
       s.add_runtime_dependency(%q<jeweler>, [">= 0"])
+      s.add_runtime_dependency(%q<rest-client>, [">= 0"])
     else
       s.add_dependency(%q<rspec>, [">= 0"])
       s.add_dependency(%q<configliere>, [">= 0"])
       s.add_dependency(%q<rubyzip>, [">= 0"])
       s.add_dependency(%q<jeweler>, [">= 0"])
+      s.add_dependency(%q<rest-client>, [">= 0"])
     end
   else
     s.add_dependency(%q<rspec>, [">= 0"])
     s.add_dependency(%q<configliere>, [">= 0"])
     s.add_dependency(%q<rubyzip>, [">= 0"])
     s.add_dependency(%q<jeweler>, [">= 0"])
+    s.add_dependency(%q<rest-client>, [">= 0"])
   end
 end
 
