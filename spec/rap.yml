@@ -5,4 +5,4 @@
 :start_script: start.sh
 :stop_script: stop.sh
 :pids: tmp/pids
-:boostrap: boostrap.sh
+:bootstrap: bootstrap.sh
