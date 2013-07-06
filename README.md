@@ -3,8 +3,7 @@
 Rappa is a tool which lets you package your rack based application e.g. Sinatra, Rails etc for easy deployment to a ThunderCat container.
 Visit the ThunderCat project to understand how this works.
 
-[![Build Status](https://secure.travis-ci.org/masterthought/rappa.png)](http://travis-ci.org/masterthought/rappa)
-
+[![Build Status](https://travis-ci.org/masterthought/rappa.png?branch=master)](https://travis-ci.org/masterthought/rappa)
 
 ## Background
 
