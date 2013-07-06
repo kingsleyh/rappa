@@ -89,17 +89,29 @@ class Rappa
     rap_file = directory + '/rap.yml'
     if @file.exists?(rap_file)
       rap = YAML.load_file(rap_file)
-      raise RappaError, "rap.yml :server_type is required and must be one of: #{SUPPORTED_SERVERS}" if rap[:server_type].nil? or rap[:server_type].empty?
-      raise RappaError, "rap.yml :server_type supplied: #{rap[:server_type]} is not in the supported server list: #{SUPPORTED_SERVERS}" unless SUPPORTED_SERVERS.include?(rap[:server_type])
-      raise RappaError, 'rap.yml :start_script is required' if rap[:start_script].nil? or rap[:start_script].empty?
-      raise RappaError, 'rap.yml :stop_script is required' if rap[:stop_script].nil? or rap[:stop_script].empty?
-      raise RappaError, 'rap.yml :pids is required' if rap[:pids].nil? or rap[:pids].empty?
-      raise RappaError, 'rap.yml :name is required' if rap[:name].nil? or rap[:name].empty?
-      raise RappaError, 'rap.yml :description is required' if rap[:description].nil? or rap[:description].empty?
-      raise RappaError, 'rap.yml :version is required' if rap[:version].nil? or rap[:version].empty?
+      validate_server_type(rap)
+      validate_scripts(rap)
+      validate_details(rap)
     else
       raise RappaError, 'rap.yml file is required - please run rappa generate to create a sample rap.yml'
     end
+  end
+
+  def validate_details(rap)
+    raise RappaError, 'rap.yml :pids is required' if rap[:pids].nil? or rap[:pids].empty?
+    raise RappaError, 'rap.yml :name is required' if rap[:name].nil? or rap[:name].empty?
+    raise RappaError, 'rap.yml :description is required' if rap[:description].nil? or rap[:description].empty?
+    raise RappaError, 'rap.yml :version is required' if rap[:version].nil? or rap[:version].empty?
+  end
+
+  def validate_scripts(rap)
+    raise RappaError, 'rap.yml :start_script is required' if rap[:start_script].nil? or rap[:start_script].empty?
+    raise RappaError, 'rap.yml :stop_script is required' if rap[:stop_script].nil? or rap[:stop_script].empty?
+  end
+
+  def validate_server_type(rap)
+    raise RappaError, "rap.yml :server_type is required and must be one of: #{SUPPORTED_SERVERS}" if rap[:server_type].nil? or rap[:server_type].empty?
+    raise RappaError, "rap.yml :server_type supplied: #{rap[:server_type]} is not in the supported server list: #{SUPPORTED_SERVERS}" unless SUPPORTED_SERVERS.include?(rap[:server_type])
   end
 
   def validate_is_rap_archive
