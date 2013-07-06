@@ -10,7 +10,7 @@ class Rappa
 
   SUPPORTED_SERVERS = %w(thin unicorn webrick)
 
-  def initialize(config={},rest_client=RestClient,file=File)
+  def initialize(config={}, rest_client=RestClient, file=File)
     @config = config
     @file = file
     @rest_client = rest_client
@@ -29,11 +29,7 @@ class Rappa
     name = "#{@config[:output_directory]}/#{@config[:file_name]}.rap"
     raise RappaError, "a rap archive already exists with the name: #{@config[:file_name]}.rap - please remove it and try again" if @file.exists?(name)
     validate(input_directory)
-    Zip::ZipFile.open(name, Zip::ZipFile::CREATE) do |zip_file|
-      Dir[@file.join(input_directory, '**', '**')].each do |file|
-        zip_file.add(file.sub(input_directory, ''), file)
-      end
-    end
+    package_zip(input_directory, name)
   end
 
   def expand
@@ -43,13 +39,7 @@ class Rappa
     validate_is_rap_archive
     output_directory = @config[:output_archive]
     FileUtils.mkdir_p output_directory unless @file.exists?(output_directory)
-    Zip::ZipFile.open(@config[:input_archive]) { |zip_file|
-      zip_file.each { |f|
-        f_path=@file.join(calculate_destination, f.name)
-        FileUtils.mkdir_p(@file.dirname(f_path))
-        zip_file.extract(f, f_path) { true } unless @file.exist?(f_path) # true will overwrite existing files.
-      }
-    }
+    expand_zip
   end
 
   def deploy
@@ -75,6 +65,24 @@ class Rappa
 
   def check_property(property, property_type)
     raise RappaError, "property #{property_type} is mandatory but was not supplied" if property.nil? or property.empty?
+  end
+
+  def expand_zip
+    Zip::ZipFile.open(@config[:input_archive]) { |zip_file|
+      zip_file.each { |f|
+        f_path=@file.join(calculate_destination, f.name)
+        FileUtils.mkdir_p(@file.dirname(f_path))
+        zip_file.extract(f, f_path) { true } unless @file.exist?(f_path) # true will overwrite existing files.
+      }
+    }
+  end
+
+  def package_zip(input_directory, name)
+    Zip::ZipFile.open(name, Zip::ZipFile::CREATE) do |zip_file|
+      Dir[@file.join(input_directory, '**', '**')].each do |file|
+        zip_file.add(file.sub(input_directory, ''), file)
+      end
+    end
   end
 
   def validate(directory)
