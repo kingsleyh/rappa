@@ -27,13 +27,16 @@ describe "Rappa" do
   end
 
   it 'should raise exception on package if :input_directory or :output_directory properties are not supplied' do
+    make_fake_project
     expect { Rappa.new(:output_directory => 'anything').package }.to raise_error(RappaError, 'property input_directory is mandatory but was not supplied')
-    expect { Rappa.new(:input_directory => 'anything').package }.to raise_error(RappaError, 'property output_directory is mandatory but was not supplied')
+    expect { Rappa.new(:input_directory => "#{@generated}/test_rap/").package }.to raise_error(RappaError, 'property output_directory is mandatory but was not supplied')
   end
 
   it 'should raise exception on expand if :input_archive or :output_archive properties are not supplied' do
+    make_fake_project
+    make_fake_rap
     expect { Rappa.new(:output_archive => 'anything').expand }.to raise_error(RappaError, 'property input_archive is mandatory but was not supplied')
-    expect { Rappa.new(:input_archive => 'anything').expand }.to raise_error(RappaError, 'property output_archive is mandatory but was not supplied')
+    expect { Rappa.new(:input_archive => "#{@generated}/test_rap/test_rap.rap").expand }.to raise_error(RappaError, 'property output_archive is mandatory but was not supplied')
   end
 
   it 'should raise an exception on expand if :input_archive is not a valid .rap file' do
@@ -106,9 +109,11 @@ describe "Rappa" do
   end
 
   it 'should raise exception on deploy if :input_rap or :api_key or :url properties are not supplied' do
+    make_fake_project
+    make_fake_rap
     expect { Rappa.new(:api_key => 'anything',:url => 'anything').deploy }.to raise_error(RappaError, 'property input_rap is mandatory but was not supplied')
-    expect { Rappa.new(:input_rap => 'anything', :api_key => 'anything').deploy }.to raise_error(RappaError, 'property url is mandatory but was not supplied')
-    expect { Rappa.new(:input_rap => 'anything', :url => 'anything').deploy }.to raise_error(RappaError, 'property api_key is mandatory but was not supplied')
+    expect { Rappa.new(:input_rap => "#{@generated}/test_rap/test_rap.rap", :api_key => 'anything').deploy }.to raise_error(RappaError, 'property url is mandatory but was not supplied')
+    expect { Rappa.new(:input_rap => "#{@generated}/test_rap/test_rap.rap", :url => 'anything').deploy }.to raise_error(RappaError, 'property api_key is mandatory but was not supplied')
   end
 
   it 'should create a package called default.rap if package is called with .' do
@@ -138,6 +143,10 @@ describe "Rappa" do
 
   def make_rap_yml(rap_config)
     File.open("#{@generated}/test_rap/rap.yml", 'w') { |f| f.puts rap_config.to_yaml }
+  end
+
+  def make_fake_rap
+    File.open("#{@generated}/test_rap/test_rap.rap","w"){|f| f.puts 'test rap'}
   end
 
 end
