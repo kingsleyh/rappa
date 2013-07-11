@@ -2,51 +2,37 @@ require 'zip/zip'
 require 'fileutils'
 require 'yaml'
 require 'rest-client'
-
-class RappaError < Exception;
-end
+require File.dirname(__FILE__) + '/rap_validator'
+require File.dirname(__FILE__) + '/property_validator'
 
 class Rappa
 
-  SUPPORTED_SERVERS = %w(thin unicorn webrick)
-
-  def initialize(config={}, rest_client=RestClient, file=File)
+  def initialize(config={}, rest_client=RestClient, file=File, rap_validator=RapValidator, property_validator=PropertyValidator)
     @config = config
     @file = file
     @rest_client = rest_client
-    unless @config[:input_directory].nil?
-      @config[:file_name] = (@config[:input_directory] == '.') ? 'default' : @file.basename(@config[:input_directory])
-    end
+    @property_validator= property_validator.new(@config,@file)
+    @rap_validator = rap_validator.new(@file)
   end
 
   def package
-    check_property(@config[:input_directory], :input_directory)
-    check_property(@config[:output_directory], :output_directory)
-    input_directory = append_trailing_slash(@config[:input_directory])
-    raise RappaError, "input directory: #{input_directory} does not exist" unless @file.exists?(input_directory)
-    output_directory = @config[:output_directory]
+    output_directory = @property_validator.output_directory
     FileUtils.mkdir_p output_directory unless @file.exists?(output_directory)
-    name = "#{@config[:output_directory]}/#{@config[:file_name]}.rap"
-    raise RappaError, "a rap archive already exists with the name: #{@config[:file_name]}.rap - please remove it and try again" if @file.exists?(name)
-    validate(input_directory)
-    package_zip(input_directory, name)
+    name = "#{output_directory}/#{@config[:file_name]}.rap"
+    @property_validator.validate_name(name)
+    @rap_validator.validate_package(@property_validator.input_directory)
+    package_zip(@property_validator.input_directory, name)
   end
 
   def expand
-    check_property(@config[:input_archive], :input_archive)
-    check_property(@config[:output_archive], :output_archive)
-    raise RappaError, "input archive: #{@config[:input_archive]} does not exist" unless @file.exists?(@config[:input_archive])
-    validate_is_rap_archive
-    output_directory = @config[:output_archive]
+    @rap_validator.validate_is_rap_archive(@file,@config)
+    @property_validator.output_archive
     FileUtils.mkdir_p output_directory unless @file.exists?(output_directory)
     expand_zip
   end
 
   def deploy
-    check_property(@config[:input_rap], :input_rap)
-    check_property(@config[:url], :url)
-    check_property(@config[:api_key], :api_key)
-    @rest_client.put "#{@config[:url]}?key=#{@config[:api_key]}", :file => @file.new(@config[:input_rap])
+    @rest_client.put "#{@property_validator.url}?key=#{ @property_validator.api_key}", :file => @file.new(@property_validator.input_rap)
   end
 
   def generate
@@ -62,10 +48,6 @@ class Rappa
   end
 
   private
-
-  def check_property(property, property_type)
-    raise RappaError, "property #{property_type} is mandatory but was not supplied" if property.nil? or property.empty?
-  end
 
   def expand_zip
     Zip::ZipFile.open(@config[:input_archive]) { |zip_file|
@@ -85,50 +67,12 @@ class Rappa
     end
   end
 
-  def validate(directory)
-    rap_file = directory + '/rap.yml'
-    if @file.exists?(rap_file)
-      rap = YAML.load_file(rap_file)
-      validate_server_type(rap)
-      validate_scripts(rap)
-      validate_details(rap)
-    else
-      raise RappaError, 'rap.yml file is required - please run rappa generate to create a sample rap.yml'
-    end
-  end
-
-  def validate_details(rap)
-    raise RappaError, 'rap.yml :pids is required' if rap[:pids].nil? or rap[:pids].empty?
-    raise RappaError, 'rap.yml :name is required' if rap[:name].nil? or rap[:name].empty?
-    raise RappaError, 'rap.yml :description is required' if rap[:description].nil? or rap[:description].empty?
-    raise RappaError, 'rap.yml :version is required' if rap[:version].nil? or rap[:version].empty?
-  end
-
-  def validate_scripts(rap)
-    raise RappaError, 'rap.yml :start_script is required' if rap[:start_script].nil? or rap[:start_script].empty?
-    raise RappaError, 'rap.yml :stop_script is required' if rap[:stop_script].nil? or rap[:stop_script].empty?
-  end
-
-  def validate_server_type(rap)
-    raise RappaError, "rap.yml :server_type is required and must be one of: #{SUPPORTED_SERVERS}" if rap[:server_type].nil? or rap[:server_type].empty?
-    raise RappaError, "rap.yml :server_type supplied: #{rap[:server_type]} is not in the supported server list: #{SUPPORTED_SERVERS}" unless SUPPORTED_SERVERS.include?(rap[:server_type])
-  end
-
-  def validate_is_rap_archive
-    base_name = @file.basename(@config[:input_archive])
-    extension = @file.extname(base_name)
-    raise RappaError, "input archive: #{@config[:input_archive]} is not a valid .rap archive" unless extension == '.rap'
-  end
-
   def calculate_destination
     base_name = @file.basename(@config[:input_archive])
     name = base_name.chomp(@file.extname(base_name))
     @config[:output_archive] + '/' + name
   end
 
-  def append_trailing_slash(path)
-    path = "#{path}/" if path[-1] != '/'
-    path
-  end
+
 
 end
