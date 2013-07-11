@@ -27,12 +27,12 @@ describe "Rappa" do
   end
 
   it 'should raise exception on package if :input_directory or :output_directory properties are not supplied' do
-    expect { Rappa.new.package }.to raise_error(RappaError, 'property input_directory is mandatory but was not supplied')
+    expect { Rappa.new(:output_directory => 'anything').package }.to raise_error(RappaError, 'property input_directory is mandatory but was not supplied')
     expect { Rappa.new(:input_directory => 'anything').package }.to raise_error(RappaError, 'property output_directory is mandatory but was not supplied')
   end
 
   it 'should raise exception on expand if :input_archive or :output_archive properties are not supplied' do
-    expect { Rappa.new.expand }.to raise_error(RappaError, 'property input_archive is mandatory but was not supplied')
+    expect { Rappa.new(:output_archive => 'anything').expand }.to raise_error(RappaError, 'property input_archive is mandatory but was not supplied')
     expect { Rappa.new(:input_archive => 'anything').expand }.to raise_error(RappaError, 'property output_archive is mandatory but was not supplied')
   end
 
@@ -106,7 +106,7 @@ describe "Rappa" do
   end
 
   it 'should raise exception on deploy if :input_rap or :api_key or :url properties are not supplied' do
-    expect { Rappa.new.deploy }.to raise_error(RappaError, 'property input_rap is mandatory but was not supplied')
+    expect { Rappa.new(:api_key => 'anything',:url => 'anything').deploy }.to raise_error(RappaError, 'property input_rap is mandatory but was not supplied')
     expect { Rappa.new(:input_rap => 'anything', :api_key => 'anything').deploy }.to raise_error(RappaError, 'property url is mandatory but was not supplied')
     expect { Rappa.new(:input_rap => 'anything', :url => 'anything').deploy }.to raise_error(RappaError, 'property api_key is mandatory but was not supplied')
   end
