@@ -4,8 +4,9 @@ class RapValidator
 
   SUPPORTED_SERVERS = %w(thin unicorn webrick)
 
-  def initialize(file)
+  def initialize(file,yaml=YAML)
     @file = file
+    @yaml = yaml
   end
 
   def validate_package(directory)
@@ -14,6 +15,14 @@ class RapValidator
     validate_scripts
     validate_details
   end
+
+  def validate_is_rap_archive(file, input_archive)
+    base_name = file.basename(input_archive)
+    extension = file.extname(base_name)
+    raise RappaError, "input archive: #{input_archive} is not a valid .rap archive" unless extension == '.rap'
+  end
+
+  private
 
   def validate_details
     raise RappaError, 'rap.yml :pids is required' if nil_or_empty?(@rap[:pids])
@@ -32,17 +41,9 @@ class RapValidator
     raise RappaError, "rap.yml :server_type supplied: #{@rap[:server_type]} is not in the supported server list: #{SUPPORTED_SERVERS}" unless SUPPORTED_SERVERS.include?(@rap[:server_type])
   end
 
-  def validate_is_rap_archive(file, input_archive)
-    base_name = file.basename(input_archive)
-    extension = file.extname(base_name)
-    raise RappaError, "input archive: #{input_archive} is not a valid .rap archive" unless extension == '.rap'
-  end
-
-  private
-
   def get_rap_file(rap_file_path)
     if @file.exists?(rap_file_path)
-      YAML.load_file(rap_file_path)
+      @yaml.load_file(rap_file_path)
     else
       raise RappaError, 'rap.yml file is required - please run rappa generate to create a sample rap.yml'
     end

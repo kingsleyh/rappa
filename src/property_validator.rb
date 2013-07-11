@@ -36,6 +36,7 @@ class PropertyValidator
 
   def input_rap
     check_property(@config[:input_rap], :input_rap)
+    raise RappaError, "input rap: #{@config[:input_rap]} does not exist" unless @file.exists?(@config[:input_rap])
     @config[:input_rap]
   end
 

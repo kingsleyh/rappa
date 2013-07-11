@@ -100,6 +100,7 @@ describe "Rappa" do
     Rappa.new(:input_directory => "#{@generated}/test_rap/", :output_directory => @generated).package
     rest_client.should_receive(:put).with('http://localhost:8089/api/deploy?key=api_key', {:file => file_instance})
     file.should_receive(:new).and_return(file_instance)
+    file.should_receive(:exists?).with(file_instance).and_return(true)
     file_instance.should_receive(:empty?).and_return(false)
     Rappa.new({:input_rap => file_instance, :url => 'http://localhost:8089/api/deploy', :api_key => 'api_key'}, rest_client, file).deploy
   end
