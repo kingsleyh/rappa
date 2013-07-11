@@ -24,8 +24,9 @@ class PropertyValidator
 
   def input_archive
     check_property(@config[:input_archive], :input_archive)
-    @config[:input_archive]
+    input_archive = @config[:input_archive]
     raise RappaError, "input archive: #{@config[:input_archive]} does not exist" unless @file.exists?(@config[:input_archive])
+    input_archive
   end
 
   def output_archive

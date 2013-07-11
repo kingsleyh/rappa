@@ -32,10 +32,10 @@ class RapValidator
     raise RappaError, "rap.yml :server_type supplied: #{@rap[:server_type]} is not in the supported server list: #{SUPPORTED_SERVERS}" unless SUPPORTED_SERVERS.include?(@rap[:server_type])
   end
 
-  def self.validate_is_rap_archive(file, config)
-    base_name = file.basename(config[:input_archive])
+  def validate_is_rap_archive(file, input_archive)
+    base_name = file.basename(input_archive)
     extension = file.extname(base_name)
-    raise RappaError, "input archive: #{config[:input_archive]} is not a valid .rap archive" unless extension == '.rap'
+    raise RappaError, "input archive: #{input_archive} is not a valid .rap archive" unless extension == '.rap'
   end
 
   private

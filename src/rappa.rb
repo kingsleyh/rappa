@@ -16,23 +16,28 @@ class Rappa
   end
 
   def package
+    input_directory = @property_validator.input_directory
     output_directory = @property_validator.output_directory
     FileUtils.mkdir_p output_directory unless @file.exists?(output_directory)
     name = "#{output_directory}/#{@config[:file_name]}.rap"
     @property_validator.validate_name(name)
-    @rap_validator.validate_package(@property_validator.input_directory)
-    package_zip(@property_validator.input_directory, name)
+    @rap_validator.validate_package(input_directory)
+    package_zip(input_directory, name)
   end
 
   def expand
-    @rap_validator.validate_is_rap_archive(@file,@config)
-    @property_validator.output_archive
+    input_archive = @property_validator.input_archive
+    output_directory = @property_validator.output_archive
+    @rap_validator.validate_is_rap_archive(@file,input_archive)
     FileUtils.mkdir_p output_directory unless @file.exists?(output_directory)
     expand_zip
   end
 
   def deploy
-    @rest_client.put "#{@property_validator.url}?key=#{ @property_validator.api_key}", :file => @file.new(@property_validator.input_rap)
+    input_rap = @property_validator.input_rap
+    api_key = @property_validator.api_key
+    url = @property_validator.url
+    @rest_client.put "#{url}?key=#{ api_key}", :file => @file.new(input_rap)
   end
 
   def generate
