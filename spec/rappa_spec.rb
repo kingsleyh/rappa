@@ -94,9 +94,9 @@ describe "Rappa" do
 
   it 'is should deploy to target thundercat server' do
     make_fake_project
-    rest_client = mock('RestClient')
-    file = mock('File')
-    file_instance = mock('FileInstance')
+    rest_client = double('RestClient')
+    file = double('File')
+    file_instance = double('FileInstance')
     Rappa.new(:input_directory => "#{@generated}/test_rap/", :output_directory => @generated).package
     rest_client.should_receive(:put).with('http://localhost:8089/api/deploy?key=api_key', {:file => file_instance})
     file.should_receive(:new).and_return(file_instance)

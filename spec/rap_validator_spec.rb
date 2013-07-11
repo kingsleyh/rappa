@@ -5,8 +5,8 @@ require File.dirname(File.expand_path(__FILE__)) + '/../src/rap_validator'
 describe 'RapValidator' do
 
   it 'should validate package (success)' do
-    file = mock('File')
-    yaml = mock('YAML')
+    file = double('File')
+    yaml = double('YAML')
     file.should_receive(:exists?).with('/some/directory/rap.yml').and_return(true)
 
     rap = {
@@ -131,16 +131,16 @@ describe 'RapValidator' do
   end
 
   it 'should raise an error if no rap file supplied' do
-    file = mock('File')
-    yaml = mock('YAML')
+    file = double('File')
+    yaml = double('YAML')
     file.should_receive(:exists?).with('/some/directory/rap.yml').and_return(false)
     rap_validator = RapValidator.new(file, yaml)
     expect { rap_validator.validate_package('/some/directory') }.to raise_error(RappaError, 'rap.yml file is required - please run rappa generate to create a sample rap.yml')
   end
 
   it 'should validate_is_rap_archive (Success)' do
-    file = mock('File')
-    yaml = mock('YAML')
+    file = double('File')
+    yaml = double('YAML')
     file.should_receive(:basename).with('/some/directory/some.rap').and_return('some.rap')
     file.should_receive(:extname).with('some.rap').and_return('.rap')
     rap_validator = RapValidator.new(file, yaml)
@@ -148,8 +148,8 @@ describe 'RapValidator' do
   end
 
   it 'should validate_is_rap_archive (Not a Rap)' do
-    file = mock('File')
-    yaml = mock('YAML')
+    file = double('File')
+    yaml = double('YAML')
     file.should_receive(:basename).with('/some/directory/some.rap').and_return('some.rap')
     file.should_receive(:extname).with('some.rap').and_return('.pap')
     rap_validator = RapValidator.new(file, yaml)
@@ -167,8 +167,8 @@ describe 'RapValidator' do
   end
 
   def rap_validation(rap)
-    file = mock('File')
-    yaml = mock('YAML')
+    file = double('File')
+    yaml = double('YAML')
     file.should_receive(:exists?).with('/some/directory/rap.yml').and_return(true)
     yaml.should_receive(:load_file).with('/some/directory/rap.yml').and_return(rap)
     RapValidator.new(file, yaml)

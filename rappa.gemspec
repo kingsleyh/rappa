@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "rappa"
-  s.version = "0.0.3"
+  s.version = "0.0.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Kingsley Hendrickse"]
-  s.date = "2013-07-05"
+  s.date = "2013-07-11"
   s.description = "Easy and simple way to package up your rack based application into a .rap (Ruby Application Package) for deployment to a web container that supports .rap such as ThunderCat.\n"
   s.email = "kingsley@masterthought.net"
   s.executables = ["/rappa"]
@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
     "README.md"
   ]
   s.files = [
-    "src/rappa.rb"
+    "src/rappa.rb","src/rap_validator.rb","src/property_validator.rb","src/rappa_error.rb"
   ]
   s.homepage = "https://github.com/masterthought/rappa"
   s.licenses = ["Apache 2.0"]
