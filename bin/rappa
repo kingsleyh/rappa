@@ -17,27 +17,35 @@ Settings.resolve!
 if Settings.rest.include?('package')
   if Settings[:input_directory].nil?
     puts '[ERROR] You must supply an input directory for package with -i e.g. rappa package -i /path/to/project'
+    exit 1
   elsif Settings[:output_directory].nil?
     puts '[ERROR] You must supply an output directory for package with -o e.g. rappa package -o /path/to/output/location'
+    exit 1
   else
     begin
       Rappa.new(Settings).package
       puts '[SUCCESS] packaged rap successfully'
+      rap = Settings[:input_directory] + '/rap.yml'
+      puts File.read(rap)
     rescue RappaError => e
       puts "[ERROR] Could not continue package because: #{e}"
+      exit 1
     end
   end
 elsif Settings.rest.include?('expand')
   if Settings[:input_archive].nil?
     puts '[ERROR] You must supply an input .rap archive for expand with -a e.g. rappa expand -a /path/to/.rap'
+    exit 1
   elsif Settings[:output_archive].nil?
     puts '[ERROR] You must supply an output archive directory for expand with -d e.g. rappa expand -d /path/to/output/location'
+    exit 1
   else
     begin
       Rappa.new(Settings).expand
       puts '[SUCCESS] expanded rap successfully'
     rescue RappaError => e
       puts "[ERROR] Could not continue expand because: #{e}"
+      exit 1
     end
   end
 elsif Settings.rest.include?('generate')
@@ -45,16 +53,20 @@ elsif Settings.rest.include?('generate')
 elsif Settings.rest.include?('deploy')
   if Settings[:input_rap].nil?
     puts '[ERROR] You must supply an input .rap archive for deploy with -r e.g. rappa deploy -r /path/to/.rap -u http://host/api/deploy -k api_key'
+    exit 1
   elsif Settings[:api_key].nil?
     puts '[ERROR] You must supply an api key for deploy with -k e.g. rappa deploy -r /path/to/.rap -u http://host/api/deploy -k api_key'
+    exit 1
   elsif Settings[:url].nil?
     puts '[ERROR] You must supply a url for deploy with -u e.g. rappa deploy -r /path/to/.rap -u http://host/api/deploy -k api_key'
+    exit 1
   else
     begin
       Rappa.new(Settings).deploy
       puts "[SUCCESS] deployed rap: #{Settings[:input_rap]} successfully to: #{Settings[:url]}"
     rescue RappaError => e
       puts "[ERROR] Could not continue deploy because: #{e}"
+      exit 1
     end
   end
 end
