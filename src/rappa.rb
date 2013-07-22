@@ -41,7 +41,7 @@ class Rappa
   end
 
   def generate
-    sample = {:server_type => 'thin', :start_script => 'start.sh', :stop_script => 'stop.sh', :pids => 'tmp/pids', :name => 'App Name', :description => 'App Description'}
+    sample = {:name => 'App Name', :description => 'App Description', :version => '1', :server_type => 'thin', :start_script => 'start.sh', :stop_script => 'stop.sh', :pids => 'tmp/pids', :bootstrap => 'bootstrap.sh'}
     @file.open('sample.rap.yml', 'w') { |f| f.puts sample.to_yaml }
   end
 

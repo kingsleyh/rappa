@@ -50,6 +50,7 @@ elsif Settings.rest.include?('expand')
   end
 elsif Settings.rest.include?('generate')
   Rappa.new.generate
+  puts '[SUCCESS] generated sample.rap.yml into current directory'
 elsif Settings.rest.include?('deploy')
   if Settings[:input_rap].nil?
     puts '[ERROR] You must supply an input .rap archive for deploy with -r e.g. rappa deploy -r /path/to/.rap -u http://host/api/deploy -k api_key'
@@ -69,5 +70,54 @@ elsif Settings.rest.include?('deploy')
       exit 1
     end
   end
+else
+  info=<<-EOF
+
+---------------------------------------------------------------------------------
+Rappa Version: 0.0.5
+Released: 22 July 2013
+---------------------------------------------------------------------------------
+
+Usage:
+
+   Package:
+     packages a directory containing a rap.yml into a .rap archive
+
+       rappa package -i /path/to/project -o /path/to/output/location
+
+     -i is the input directory location (mandatory)
+     -o is the output directory location (mandatory)
+
+  Expand:
+    expands a packaged .rap archive
+
+      rappa expand -a /path/to/.rap -d /path/to/output/location
+
+    -a is the input rap archive location (mandatory)
+    -d is the destination location (mandatory)
+
+  Deploy:
+    deploys a .rap archive to a thundercat instance (see https://github.com/masterthought/thundercat)
+
+      rappa deploy -r /path/to/.rap -u http://host/api/deploy -k api_key
+
+    -r is the input .rap archive to deploy (mandatory)
+    -u is the thundercat instance url (mandatory)
+    -k is the api_key (mandatory)
+
+  Generate:
+    generates a sample rap.yml in the current directory
+
+      rappa generate
+
+Info:
+
+  For more information on how to use rappa please visit:
+    https://github.com/masterthought/rappa
+
+---------------------------------------------------------------------------------
+
+  EOF
+  puts info
 end
 
