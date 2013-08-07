@@ -5,6 +5,7 @@ Visit the ThunderCat project to understand how this works.
 
 [![Build Status](https://travis-ci.org/masterthought/rappa.png?branch=master)](https://travis-ci.org/masterthought/rappa)
 [![Code Climate](https://codeclimate.com/repos/51d89bb913d6376ff8018f91/badges/607d6b3238c1b52da631/gpa.png)](https://codeclimate.com/repos/51d89bb913d6376ff8018f91/feed)
+[![rappa Downloads](http://www.gemetric.me/images/rappa.gif)](https://rubygems.org/gems/rappa)
 
 ## Background
 
