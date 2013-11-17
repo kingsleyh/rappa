@@ -6,3 +6,4 @@
 :stop_script: stop.sh
 :pids: tmp/pids
 :bootstrap: bootstrap.sh
+:excludes: ['file1','folder1']

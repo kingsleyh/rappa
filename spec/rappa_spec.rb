@@ -50,6 +50,29 @@ describe "Rappa" do
     expect { Rappa.new(:input_directory => "#{@generated}/test_rap/", :output_directory => @generated).package }.to raise_error(RappaError, 'a rap archive already exists with the name: test_rap.rap - please remove it and try again')
   end
 
+  it 'should raise an exception when excludes property is specified but the value supplied is not an array' do
+    make_fake_project
+    expect { Rappa.new(:input_directory => "#{@generated}/test_rap/", :output_directory => @generated, :excludes => 'excluded_file').package }.to raise_error(RappaError, "property: excludes is optional but requires an array of files/folders to exclude e.g excludes: ['folder1','file1.txt']")
+  end
+
+  it 'should exclude specified files and folders from the rap package when excludes property is specified' do
+    make_fake_project
+    Rappa.new(:input_directory => "#{@generated}/test_rap/", :output_directory => @generated, :excludes => ['test_1.txt', 'nested']).package
+    assert_file_exists("#{@generated}/test_rap.rap")
+    Rappa.new(:input_archive => "#{@generated}/test_rap.rap", :output_archive => @generated + '/output').expand
+
+    #should not be present
+    %W(#{@generated}/output/test_rap/test_1.txt #{@generated}/output/test_rap/nested #{@generated}/output/test_rap/nested/test_2.txt).each do |path|
+      File.exists?(path).should == false
+    end
+
+    #should be present
+    %W(#{@generated}/output/test_rap).each do |path|
+      File.exists?(path).should == true
+    end
+
+  end
+
   it 'should raise an exception on package if rap.yml is missing' do
     make_fake_project(false)
     expect { Rappa.new(:input_directory => "#{@generated}/test_rap/", :output_directory => @generated).package }.to raise_error(RappaError, 'rap.yml file is required - please run rappa generate to create a sample rap.yml')
@@ -111,7 +134,7 @@ describe "Rappa" do
   it 'should raise exception on deploy if :input_rap or :api_key or :url properties are not supplied' do
     make_fake_project
     make_fake_rap
-    expect { Rappa.new(:api_key => 'anything',:url => 'anything').deploy }.to raise_error(RappaError, 'property input_rap is mandatory but was not supplied')
+    expect { Rappa.new(:api_key => 'anything', :url => 'anything').deploy }.to raise_error(RappaError, 'property input_rap is mandatory but was not supplied')
     expect { Rappa.new(:input_rap => "#{@generated}/test_rap/test_rap.rap", :api_key => 'anything').deploy }.to raise_error(RappaError, 'property url is mandatory but was not supplied')
     expect { Rappa.new(:input_rap => "#{@generated}/test_rap/test_rap.rap", :url => 'anything').deploy }.to raise_error(RappaError, 'property api_key is mandatory but was not supplied')
   end
@@ -146,7 +169,7 @@ describe "Rappa" do
   end
 
   def make_fake_rap
-    File.open("#{@generated}/test_rap/test_rap.rap","w"){|f| f.puts 'test rap'}
+    File.open("#{@generated}/test_rap/test_rap.rap", "w") { |f| f.puts 'test rap' }
   end
 
 end

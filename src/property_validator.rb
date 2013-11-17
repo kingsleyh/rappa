@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/rappa_error'
 
 class PropertyValidator
 
-  def initialize(config,file)
+  def initialize(config, file)
     @config = config
     @file = file
   end
@@ -48,6 +48,12 @@ class PropertyValidator
   def api_key
     check_property(@config[:api_key], :api_key)
     @config[:api_key]
+  end
+
+  def excludes
+    return [] if @config[:excludes].nil?
+    raise RappaError, "property: excludes is optional but requires an array of files/folders to exclude e.g excludes: ['folder1','file1.txt']" unless @config[:excludes].is_a?(Array)
+    @config[:excludes]
   end
 
 

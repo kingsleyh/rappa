@@ -41,7 +41,7 @@ class Rappa
   end
 
   def generate
-    sample = {:name => 'App Name', :description => 'App Description', :version => '1', :server_type => 'thin', :start_script => 'start.sh', :stop_script => 'stop.sh', :pids => 'tmp/pids', :bootstrap => 'bootstrap.sh'}
+    sample = {:name => 'App Name', :description => 'App Description', :version => '1', :server_type => 'thin', :start_script => 'start.sh', :stop_script => 'stop.sh', :pids => 'tmp/pids', :bootstrap => 'bootstrap.sh', :excludes => %w(file1 folder1)}
     @file.open('sample.rap.yml', 'w') { |f| f.puts sample.to_yaml }
   end
 
@@ -66,7 +66,9 @@ class Rappa
 
   def package_zip(input_directory, name)
     Zip::ZipFile.open(name, Zip::ZipFile::CREATE) do |zip_file|
-      Dir[@file.join(input_directory, '**', '**')].each do |file|
+      glob = Dir[@file.join(input_directory, '**', '**')]
+      @property_validator.excludes.each{|ex| glob.reject!{|f| f[input_directory + ex]}}
+      glob.each do |file|
         zip_file.add(file.sub(input_directory, ''), file)
       end
     end
