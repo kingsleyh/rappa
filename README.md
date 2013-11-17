@@ -95,6 +95,12 @@ An example would be to have a thin project which uses Rake and has the following
 
 (Recommended that you bundle package instead of putting a bundle install in the bootstrap.sh though)
 
+### Troubleshooting
+
+If you get an error related to zip/zip or rubyzip try adding this into your Gemfile when using the rappa gem directly
+
+gem 'rubyzip', '< 1.0.0'
+
 ### Rap file
 
 ./rap.yml
@@ -120,11 +126,13 @@ Once you have your rap.yml in the root of your project you must navigate one lev
 
 This packages your application. You need a rap.yml in the root of your project and must be executed from one level up from your application e.g.
 
-     rappa package -i path/to/your/app -o path/to/destination
+     rappa package -i path/to/your/app -o path/to/destination -e 'file1,folder1'
 
 The -i is for input directory and the -o is for output directory e.g.
 
      rappa package -i ./myapp -o .
+
+The -e is to specify files and folders to exclude from the package and it's optional
 
 Will produce a myapp.rap in the current directory. The name of the folder of your application is what will be used in the rap archive.
 
