@@ -11,7 +11,7 @@ Settings.define :output_archive, :flag => 'd', :description => 'Output directory
 Settings.define :input_rap, :flag => 'r', :description => 'Input .rap for deploy e.g. rappa deploy -r /path/to/.rap -u http://host/api/deploy -k api_key'
 Settings.define :url, :flag => 'u', :description => 'Url for deploy e.g. rappa deploy -r /path/to/.rap -u http://host/api/deploy -k api_key'
 Settings.define :api_key, :flag => 'k', :description => 'Api key for deploy e.g. rappa deploy -r /path/to/.rap -u http://host/api/deploy -k api_key'
-Settings.define :excludes, :flag => 'e', :description => 'Files and folders to exclude from the rap e.g. rappa package -i /path/to/project -e ["file1","folder1"]'
+Settings.define :excludes, :type => Array, :flag => 'e', :description => 'Files and folders to exclude from the rap e.g. rappa package -i /path/to/project -e file1,folder1'
 
 Settings.resolve!
 
@@ -84,7 +84,7 @@ Usage:
    Package:
      packages a directory containing a rap.yml into a .rap archive
 
-       rappa package -i /path/to/project -o /path/to/output/location -e ['file1','folder1']
+       rappa package -i /path/to/project -o /path/to/output/location -e 'file1,folder1'
 
      -i is the input directory location (mandatory)
      -o is the output directory location (mandatory)
