@@ -139,21 +139,19 @@ describe 'RapValidator' do
   end
 
   it 'should validate_is_rap_archive (Success)' do
-    file = double('File')
-    yaml = double('YAML')
-    file.should_receive(:basename).with('/some/directory/some.rap').and_return('some.rap')
-    file.should_receive(:extname).with('some.rap').and_return('.rap')
-    rap_validator = RapValidator.new(file, yaml)
-    rap_validator.validate_is_rap_archive(file,'/some/directory/some.rap').should == nil
+    assert_valid_archive(:rap)
   end
 
   it 'should validate_is_rap_archive (Not a Rap)' do
-    file = double('File')
-    yaml = double('YAML')
-    file.should_receive(:basename).with('/some/directory/some.rap').and_return('some.rap')
-    file.should_receive(:extname).with('some.rap').and_return('.pap')
-    rap_validator = RapValidator.new(file, yaml)
-    expect {rap_validator.validate_is_rap_archive(file,'/some/directory/some.rap')}.to raise_error('input archive: /some/directory/some.rap is not a valid .rap archive')
+    assert_invalid_archive(:rap)
+  end
+
+  it 'should validate_is_zip_archive (Success)' do
+    assert_valid_archive(:zip)
+  end
+
+  it 'should validate_is_zip_archive (Not a Zip)' do
+    assert_invalid_archive(:zip)
   end
 
   def assert_server_type(rap, message)
@@ -172,6 +170,28 @@ describe 'RapValidator' do
     file.should_receive(:exists?).with('/some/directory/rap.yml').and_return(true)
     yaml.should_receive(:load_file).with('/some/directory/rap.yml').and_return(rap)
     RapValidator.new(file, yaml)
+  end
+
+  private
+
+  def assert_valid_archive(archive_type)
+    archive_type = archive_type.to_s
+    file = double('File')
+    yaml = double('YAML')
+    file.should_receive(:basename).with('/some/directory/some.'+archive_type).and_return('some.'+archive_type)
+    file.should_receive(:extname).with('some.'+archive_type).and_return('.'+archive_type)
+    rap_validator = RapValidator.new(file, yaml)
+    rap_validator.send("validate_is_#{archive_type}_archive", file, '/some/directory/some.'+archive_type).should == nil
+  end
+
+  def assert_invalid_archive(archive_type)
+    archive_type = archive_type.to_s
+    file = double('File')
+    yaml = double('YAML')
+    file.should_receive(:basename).with('/some/directory/some.'+archive_type).and_return('some.'+archive_type)
+    file.should_receive(:extname).with('some.'+archive_type).and_return('.pap')
+    rap_validator = RapValidator.new(file, yaml)
+    expect { rap_validator.send("validate_is_#{archive_type}_archive", file, '/some/directory/some.'+archive_type) }.to raise_error("input archive: /some/directory/some.#{archive_type} is not a valid .#{archive_type} archive")
   end
 
 

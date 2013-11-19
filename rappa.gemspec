@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "rappa"
-  s.version = "0.0.7"
+  s.version = "0.0.8"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Kingsley Hendrickse"]
-  s.date = "2013-07-11"
+  s.date = "2013-11-19"
   s.description = "Easy and simple way to package up your rack based application into a .rap (Ruby Application Package) for deployment to a web container that supports .rap such as ThunderCat.\n"
   s.email = "kingsley@masterthought.net"
   s.executables = ["/rappa"]

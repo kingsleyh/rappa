@@ -22,6 +22,12 @@ class RapValidator
     raise RappaError, "input archive: #{input_archive} is not a valid .rap archive" unless extension == '.rap'
   end
 
+  def validate_is_zip_archive(file, input_archive)
+    base_name = file.basename(input_archive)
+    extension = file.extname(base_name)
+    raise RappaError, "input archive: #{input_archive} is not a valid .zip archive" unless extension == '.zip'
+  end
+
   private
 
   def validate_details

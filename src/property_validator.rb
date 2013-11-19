@@ -40,6 +40,12 @@ class PropertyValidator
     @config[:input_rap]
   end
 
+  def input_zip
+    check_property(@config[:input_zip], :input_zip)
+    raise RappaError, "input zip: #{@config[:input_zip]} does not exist" unless @file.exists?(@config[:input_zip])
+    @config[:input_zip]
+  end
+
   def url
     check_property(@config[:url], :url)
     @config[:url]

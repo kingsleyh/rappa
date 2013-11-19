@@ -73,6 +73,14 @@ describe "Rappa" do
 
   end
 
+  it 'should standalone package and expand a directory as a zip' do
+    make_fake_project
+    Rappa.new(:input_directory => "#{@generated}/test_rap/", :output_directory => @generated).standalone_package
+    assert_file_exists("#{@generated}/test_rap.zip")
+    Rappa.new(:input_archive => "#{@generated}/test_rap.zip", :output_archive => @generated + '/output').standalone_expand
+    assert_expanded_archive
+  end
+
   it 'should raise an exception on package if rap.yml is missing' do
     make_fake_project(false)
     expect { Rappa.new(:input_directory => "#{@generated}/test_rap/", :output_directory => @generated).package }.to raise_error(RappaError, 'rap.yml file is required - please run rappa generate to create a sample rap.yml')
@@ -118,7 +126,7 @@ describe "Rappa" do
     expect { Rappa.new(:input_directory => "#{@generated}/test_rap/", :output_directory => @generated).package }.to raise_error(RappaError, 'rap.yml :version is required')
   end
 
-  it 'is should deploy to target thundercat server' do
+  it 'should deploy to target thundercat server' do
     make_fake_project
     rest_client = double('RestClient')
     file = double('File')
@@ -128,7 +136,24 @@ describe "Rappa" do
     file.should_receive(:new).and_return(file_instance)
     file.should_receive(:exists?).with(file_instance).and_return(true)
     file_instance.should_receive(:empty?).and_return(false)
+    file.should_receive(:basename).with(file_instance).and_return('test_rap.rap')
+    file.should_receive(:extname).with('test_rap.rap').and_return('.rap')
     Rappa.new({:input_rap => file_instance, :url => 'http://localhost:8089/api/deploy', :api_key => 'api_key'}, rest_client, file).deploy
+  end
+
+  it 'should standalone_deploy to target thundercat server' do
+     make_fake_project
+     rest_client = double('RestClient')
+     file = double('File')
+     file_instance = double('FileInstance')
+     Rappa.new(:input_directory => "#{@generated}/test_rap/", :output_directory => @generated).package
+     rest_client.should_receive(:put).with('http://localhost:8089/api/standalone_deploy?key=api_key', {:file => file_instance})
+     file.should_receive(:new).and_return(file_instance)
+     file.should_receive(:exists?).with(file_instance).and_return(true)
+     file_instance.should_receive(:empty?).and_return(false)
+     file.should_receive(:basename).with(file_instance).and_return('standalone.zip')
+     file.should_receive(:extname).with('standalone.zip').and_return('.zip')
+     Rappa.new({:input_zip => file_instance, :url => 'http://localhost:8089/api/standalone_deploy', :api_key => 'api_key'}, rest_client, file).standalone_deploy
   end
 
   it 'should raise exception on deploy if :input_rap or :api_key or :url properties are not supplied' do

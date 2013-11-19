@@ -83,19 +83,37 @@ describe 'PropertyValidator' do
   end
 
   it 'should return input rap when supplied an existing input rap' do
-    config = {:input_rap => '/some/rap.yml'}
-    file = double('File')
-    file.should_receive(:exists?).with('/some/rap.yml').and_return(true)
-    property_validator = PropertyValidator.new(config, file)
-    property_validator.input_rap.should == config[:input_rap]
+    assert_existing_archive(:rap)
   end
 
   it 'should raise an error for input rap when supplied a non existing input rap' do
-     config = {:input_rap => '/some/rap.yml'}
-     file = double('File')
-     file.should_receive(:exists?).with('/some/rap.yml').and_return(false)
-     property_validator = PropertyValidator.new(config, file)
-     expect {property_validator.input_rap }.to raise_error(RappaError, 'input rap: /some/rap.yml does not exist')
+    assert_non_existing_archive(:rap)
+  end
+
+  it 'should return input zip when supplied an existing input zip' do
+    assert_existing_archive(:zip)
+  end
+
+  it 'should raise an error for input zip when supplied a non existing input zip' do
+    assert_non_existing_archive(:zip)
+  end
+
+  def assert_existing_archive(archive_type)
+    archive_type = archive_type.to_s
+    config = {"input_#{archive_type}".to_sym => '/some/thing.'+archive_type}
+    file = double('File')
+    file.should_receive(:exists?).with('/some/thing.'+archive_type).and_return(true)
+    property_validator = PropertyValidator.new(config, file)
+    property_validator.send("input_#{archive_type}").should == config["input_#{archive_type}".to_sym]
+  end
+
+  def assert_non_existing_archive(archive_type)
+    archive_type = archive_type.to_s
+    config = {"input_#{archive_type}".to_sym => '/some/thing.'+archive_type}
+    file = double('File')
+    file.should_receive(:exists?).with('/some/thing.'+archive_type).and_return(false)
+    property_validator = PropertyValidator.new(config, file)
+    expect { property_validator.send("input_#{archive_type}") }.to raise_error(RappaError, "input #{archive_type}: /some/thing.#{archive_type} does not exist")
   end
 
   it 'should raise error when input rap property is not supplied' do

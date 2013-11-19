@@ -11,7 +11,7 @@ class Rappa
     @config = config
     @file = file
     @rest_client = rest_client
-    @property_validator= property_validator.new(@config,@file)
+    @property_validator= property_validator.new(@config, @file)
     @rap_validator = rap_validator.new(@file)
   end
 
@@ -28,7 +28,7 @@ class Rappa
   def expand
     input_archive = @property_validator.input_archive
     output_directory = @property_validator.output_archive
-    @rap_validator.validate_is_rap_archive(@file,input_archive)
+    @rap_validator.validate_is_rap_archive(@file, input_archive)
     FileUtils.mkdir_p output_directory unless @file.exists?(output_directory)
     expand_zip
   end
@@ -37,7 +37,33 @@ class Rappa
     input_rap = @property_validator.input_rap
     api_key = @property_validator.api_key
     url = @property_validator.url
+    @rap_validator.validate_is_rap_archive(@file, input_rap)
     @rest_client.put "#{url}?key=#{ api_key}", :file => @file.new(input_rap)
+  end
+
+  def standalone_package
+    input_directory = @property_validator.input_directory
+    output_directory = @property_validator.output_directory
+    FileUtils.mkdir_p output_directory unless @file.exists?(output_directory)
+    name = "#{output_directory}/#{@config[:file_name]}.zip"
+    @property_validator.validate_name(name)
+    package_zip(input_directory, name)
+  end
+
+  def standalone_expand
+    input_archive = @property_validator.input_archive
+    output_directory = @property_validator.output_archive
+    @rap_validator.validate_is_zip_archive(@file, input_archive)
+    FileUtils.mkdir_p output_directory unless @file.exists?(output_directory)
+    expand_zip
+  end
+
+  def standalone_deploy
+    input_zip = @property_validator.input_zip
+    api_key = @property_validator.api_key
+    url = @property_validator.url
+    @rap_validator.validate_is_zip_archive(@file, input_zip)
+    @rest_client.put "#{url}?key=#{ api_key}", :file => @file.new(input_zip)
   end
 
   def generate
@@ -67,7 +93,7 @@ class Rappa
   def package_zip(input_directory, name)
     Zip::ZipFile.open(name, Zip::ZipFile::CREATE) do |zip_file|
       glob = Dir[@file.join(input_directory, '**', '**')]
-      @property_validator.excludes.each{|ex| glob.reject!{|f| f[input_directory + ex]}}
+      @property_validator.excludes.each { |ex| glob.reject! { |f| f[input_directory + ex] } }
       glob.each do |file|
         zip_file.add(file.sub(input_directory, ''), file)
       end
@@ -79,7 +105,6 @@ class Rappa
     name = base_name.chomp(@file.extname(base_name))
     @config[:output_archive] + '/' + name
   end
-
 
 
 end

@@ -121,6 +121,9 @@ Once you have your rap.yml in the root of your project you must navigate one lev
   * package
   * expand
   * deploy
+  * standalone_package
+  * standalone_expand
+  * standalone_deploy
 
 ### package
 
@@ -152,6 +155,13 @@ This deploys a rap archive to a thundercat server e.g.
 
 -r is to specify your rap archive and -u is the url of the deploy api where your thundercat instance is running. -k is your api_key which is configured in your
 thundercat server.
+
+### Standalone options
+
+If you use any of the standalone commands they do the same as the regular ones except they work with a regular folder or zip file instead of a specific rap archive.
+The standalone_deploy will deploy the supplied zip archive to the thundercat instance in the /standalone directory
+
+This is useful if you want to split your deployables into pieces and symlink folders from the /standalone directory e.g your asset pipeline or public directory
 
 ## Develop
 

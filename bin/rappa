@@ -49,6 +49,38 @@ elsif Settings.rest.include?('expand')
       exit 1
     end
   end
+elsif Settings.rest.include?('standalone_package')
+  if Settings[:input_directory].nil?
+    puts '[ERROR] You must supply an input directory for package with -i e.g. rappa standalone_package -i /path/to/project'
+    exit 1
+  elsif Settings[:output_directory].nil?
+    puts '[ERROR] You must supply an output directory for package with -o e.g. rappa standalone_package -o /path/to/output/location'
+    exit 1
+  else
+    begin
+      Rappa.new(Settings).standalone_package
+      puts '[SUCCESS] packaged standalone zip successfully'
+    rescue RappaError => e
+      puts "[ERROR] Could not continue package because: #{e}"
+      exit 1
+    end
+  end
+elsif Settings.rest.include?('standalone_expand')
+  if Settings[:input_archive].nil?
+    puts '[ERROR] You must supply an input .zip archive for standalone_expand with -a e.g. rappa standalone_expand -a /path/to/.zip'
+    exit 1
+  elsif Settings[:output_archive].nil?
+    puts '[ERROR] You must supply an output archive directory for standalone_expand with -d e.g. rappa standalone_expand -d /path/to/output/location'
+    exit 1
+  else
+    begin
+      Rappa.new(Settings).standalone_expand
+      puts '[SUCCESS] expanded standalone zip successfully'
+    rescue RappaError => e
+      puts "[ERROR] Could not continue expand because: #{e}"
+      exit 1
+    end
+  end
 elsif Settings.rest.include?('generate')
   Rappa.new.generate
   puts '[SUCCESS] generated sample.rap.yml into current directory'
@@ -75,8 +107,8 @@ else
   info=<<-EOF
 
 ---------------------------------------------------------------------------------
-Rappa Version: 0.0.7
-Released: 17 November 2013
+Rappa Version: 0.0.8
+Released: 19 November 2013
 ---------------------------------------------------------------------------------
 
 Usage:
@@ -113,6 +145,8 @@ Usage:
       rappa generate
 
 Info:
+
+  To package/expand/deploy a standalone zip archive use standalone_package/standalone_expand/standalone_deploy in place of package,expand and deploy
 
   For more information on how to use rappa please visit:
     https://github.com/masterthought/rappa
