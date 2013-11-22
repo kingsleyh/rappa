@@ -9,7 +9,7 @@ class PropertyValidator
 
   def input_directory
     unless @config[:input_directory].nil?
-      @config[:file_name] = (@config[:input_directory] == '.') ? 'default' : @file.basename(@config[:input_directory])
+      @config[:file_name] ||= (@config[:input_directory] == '.') ? 'default' : @file.basename(@config[:input_directory])
     end
     check_property(@config[:input_directory], :input_directory)
     input_directory = append_trailing_slash(@config[:input_directory])

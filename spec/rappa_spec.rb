@@ -18,6 +18,22 @@ describe "Rappa" do
     assert_expanded_archive
   end
 
+  it 'should use the directory name supplied during packaging as the name of the rap archive unless file_name is supplied' do
+    make_fake_project
+    Rappa.new(:input_directory => "#{@generated}/test_rap/", :file_name => 'awesome', :output_directory => @generated).package
+    assert_file_exists("#{@generated}/awesome.rap")
+    Rappa.new(:input_archive => "#{@generated}/awesome.rap", :output_archive => @generated + '/output').expand
+    assert_expanded_archive('awesome')
+  end
+
+  it 'should use the directory name supplied during standalone packaging as the name of the zip archive unless file_name is supplied' do
+    make_fake_project
+    Rappa.new(:input_directory => "#{@generated}/test_rap/", :file_name => 'awesome', :output_directory => @generated).standalone_package
+    assert_file_exists("#{@generated}/awesome.zip")
+    Rappa.new(:input_archive => "#{@generated}/awesome.zip", :output_archive => @generated + '/output').standalone_expand
+    assert_expanded_archive('awesome')
+  end
+
   it 'should raise an exception if package is not passed a valid input directory' do
     expect { Rappa.new(:input_directory => 'missing', :output_directory => 'anything').package }.to raise_error(RappaError, 'input directory: missing/ does not exist')
   end
@@ -142,18 +158,18 @@ describe "Rappa" do
   end
 
   it 'should standalone_deploy to target thundercat server' do
-     make_fake_project
-     rest_client = double('RestClient')
-     file = double('File')
-     file_instance = double('FileInstance')
-     Rappa.new(:input_directory => "#{@generated}/test_rap/", :output_directory => @generated).package
-     rest_client.should_receive(:put).with('http://localhost:8089/api/standalone_deploy?key=api_key', {:file => file_instance})
-     file.should_receive(:new).and_return(file_instance)
-     file.should_receive(:exists?).with(file_instance).and_return(true)
-     file_instance.should_receive(:empty?).and_return(false)
-     file.should_receive(:basename).with(file_instance).and_return('standalone.zip')
-     file.should_receive(:extname).with('standalone.zip').and_return('.zip')
-     Rappa.new({:input_zip => file_instance, :url => 'http://localhost:8089/api/standalone_deploy', :api_key => 'api_key'}, rest_client, file).standalone_deploy
+    make_fake_project
+    rest_client = double('RestClient')
+    file = double('File')
+    file_instance = double('FileInstance')
+    Rappa.new(:input_directory => "#{@generated}/test_rap/", :output_directory => @generated).package
+    rest_client.should_receive(:put).with('http://localhost:8089/api/standalone_deploy?key=api_key', {:file => file_instance})
+    file.should_receive(:new).and_return(file_instance)
+    file.should_receive(:exists?).with(file_instance).and_return(true)
+    file_instance.should_receive(:empty?).and_return(false)
+    file.should_receive(:basename).with(file_instance).and_return('standalone.zip')
+    file.should_receive(:extname).with('standalone.zip').and_return('.zip')
+    Rappa.new({:input_zip => file_instance, :url => 'http://localhost:8089/api/standalone_deploy', :api_key => 'api_key'}, rest_client, file).standalone_deploy
   end
 
   it 'should raise exception on deploy if :input_rap or :api_key or :url properties are not supplied' do
@@ -170,8 +186,8 @@ describe "Rappa" do
     assert_file_exists("#{@generated}/default.rap")
   end
 
-  def assert_expanded_archive
-    %W(#{@generated}/output/test_rap/test_1.txt #{@generated}/output/test_rap/nested #{@generated}/output/test_rap/nested/test_2.txt).each do |path|
+  def assert_expanded_archive(rap_name='test_rap')
+    %W(#{@generated}/output/#{rap_name}/test_1.txt #{@generated}/output/#{rap_name}/nested #{@generated}/output/#{rap_name}/nested/test_2.txt).each do |path|
       assert_file_exists(path)
     end
   end
