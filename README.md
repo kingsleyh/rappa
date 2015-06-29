@@ -1,3 +1,5 @@
+# PLEASE NOTE - This project is not being actively maintained at the moment - I am taking a break - not sure when I will return.
+
 # Package and deploy ruby rack based applications
 
 Rappa is a tool which lets you package your rack based application e.g. Sinatra, Rails etc for easy deployment to a ThunderCat container.
